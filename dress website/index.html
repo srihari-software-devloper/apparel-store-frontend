@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DressCraft | Premium Fashion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="index.html" class="logo">
+                <span style="color: var(--primary);">👗 DressCraft</span>
+            </a>
+            
+            <div class="search-bar">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Try searching 'Kurtis' or 'Sarees'">
+            </div>
+
+            <div class="nav-actions">
+                <div class="action-item">Profile</div>
+                <a href="cart.html" class="action-item action-wrapper">
+                    Cart <span class="cart-count" id="cartCountBadge">0</span>
+                </a>
+            </div>
+        </div>
+        <div class="sub-nav">
+            <a href="shop.html?category=ethnic">Women Ethnic</a>
+            <a href="shop.html?category=western">Women Western</a>
+            <a href="shop.html?category=men">Men</a>
+            <a href="shop.html?category=accessories">Accessories</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Lowest Prices<br>Best Quality Shopping</h1>
+            <p>Free Delivery | Cash on Delivery | Easy Returns</p>
+            <a href="shop.html?category=all" class="btn-primary">Shop Now</a>
+        </div>
+        <div>
+            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=400&auto=format&fit=crop" alt="Shopping Girl" style="border-radius: 8px; box-shadow: var(--shadow-lg);">
+        </div>
+    </section>
+
+    <section class="categories">
+        <h2 class="section-title">Top Categories to Choose From</h2>
+        <div class="category-grid">
+            <div class="category-item" onclick="window.location.href='shop.html?category=sarees'">
+                <div class="category-img"><img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=200&auto=format&fit=crop" alt="Sarees"></div>
+                <p>Sarees</p>
+            </div>
+            <div class="category-item" onclick="window.location.href='shop.html?category=kurtis'">
+                <div class="category-img"><img src="https://images.unsplash.com/photo-1583391733958-d25e07fac661?q=80&w=200&auto=format&fit=crop" alt="Kurtis"></div>
+                <p>Kurtis</p>
+            </div>
+            <div class="category-item" onclick="window.location.href='shop.html?category=dresses'">
+                <div class="category-img"><img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=200&auto=format&fit=crop" alt="Dresses"></div>
+                <p>Dresses</p>
+            </div>
+            <div class="category-item" onclick="window.location.href='shop.html?category=tops'">
+                <div class="category-img"><img src="https://images.unsplash.com/photo-1571513722275-4b41940f54b8?q=80&w=200&auto=format&fit=crop" alt="Tops"></div>
+                <p>Tops</p>
+            </div>
+            <div class="category-item" onclick="window.location.href='shop.html?category=accessories'">
+                <div class="category-img"><img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=200&auto=format&fit=crop" alt="Accessories"></div>
+                <p>Accessories</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="product-section">
+        <h2 class="section-title">Products For You</h2>
+        <div class="product-grid" id="trendingGrid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <footer>
+        <p>DressCraft © 2026. Premium E-Commerce Experience.</p>
+    </footer>
+
+    <!-- Load Data and Scripts -->
+    <script src="products.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            // Load trending products dynamically
+            const trendingGrid = document.getElementById('trendingGrid');
+            if(trendingGrid && typeof getTrendingProducts === 'function') {
+                const products = getTrendingProducts();
+                trendingGrid.innerHTML = products.map(p => `
+                    <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+                        <img src="${p.image}" alt="${p.title}">
+                        <div class="product-info">
+                            <h3 class="product-title">${p.title}</h3>
+                            <p class="product-price">₹${p.price}</p>
+                            <span class="product-delivery">Free Delivery</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+</html>

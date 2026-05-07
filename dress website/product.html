@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | DressCraft</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="index.html" class="logo">
+                <span style="color: var(--primary);">👗 DressCraft</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="action-item action-wrapper">
+                    Cart <span class="cart-count" id="cartCountBadge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="product-detail-container" id="productContainer">
+        <!-- Will be populated by JS -->
+        <p style="text-align:center; width:100%;">Loading product...</p>
+    </div>
+
+    <footer><p>DressCraft © 2026</p></footer>
+
+    <script src="products.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const product = getProductById(productId);
+            const container = document.getElementById('productContainer');
+
+            if(!product) {
+                container.innerHTML = '<h2 style="text-align:center; width:100%; color:red;">Product Not Found</h2><a href="shop.html?category=all" class="btn-primary" style="display:block; width:200px; margin: 20px auto; text-align:center;">Back to Shop</a>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="product-images">
+                    <div class="thumbnail-list">
+                        ${product.images.map(img => `<img src="${img}" class="thumbnail" alt="thumb">`).join('')}
+                    </div>
+                    <div class="main-image">
+                        <img src="${product.image}" alt="${product.title}">
+                    </div>
+                </div>
+
+                <div class="product-details">
+                    <h1>${product.title}</h1>
+                    <div class="detail-price">₹${product.price} <span style="font-size:14px; color: #888; text-decoration: line-through; font-weight: normal;">₹${product.originalPrice}</span></div>
+                    <p style="color: #666; margin-bottom: 20px;">Free Delivery</p>
+
+                    <div class="select-size">
+                        <p style="font-weight: 600; font-size: 18px;">Select Size</p>
+                        <div class="size-options">
+                            <button class="size-btn">S</button>
+                            <button class="size-btn active">M</button>
+                            <button class="size-btn">L</button>
+                            <button class="size-btn">XL</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-weight: 600; font-size: 18px; margin-bottom: 5px;">Product Details</p>
+                        <ul style="color: #666; font-size: 14px; list-style-type: disc; padding-left: 20px;">
+                            ${product.details.map(d => `<li>${d}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">Enter Name for Order</p>
+                        <input type="text" id="customerName" placeholder="Your Name" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-cart" onclick="addToCartDynamic(${product.id})">Add to Cart</button>
+                        <button class="btn-buy" onclick="buyNowDynamic(${product.id})">Buy Now</button>
+                    </div>
+                </div>
+            `;
+            document.title = `${product.title} | DressCraft`;
+        });
+    </script>
+</body>
+</html>

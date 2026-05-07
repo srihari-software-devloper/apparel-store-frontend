@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | DressCraft</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="index.html" class="logo">
+                <span style="color: var(--primary);">👗 DressCraft</span>
+            </a>
+            <div class="search-bar">
+                <input type="text" placeholder="Search by Keyword or Product ID">
+            </div>
+            <div class="nav-actions">
+                <div class="action-item">Profile</div>
+                <a href="cart.html" class="action-item action-wrapper">
+                    Cart <span class="cart-count" id="cartCountBadge">0</span>
+                </a>
+            </div>
+        </div>
+        <div class="sub-nav">
+            <a href="shop.html?category=ethnic">Women Ethnic</a>
+            <a href="shop.html?category=western">Women Western</a>
+            <a href="shop.html?category=men">Men</a>
+            <a href="shop.html?category=accessories">Accessories</a>
+        </div>
+    </header>
+
+    <div class="shop-container">
+        <aside class="filters-sidebar">
+            <div class="filter-group">
+                <h3>Filters</h3>
+                <p style="font-size: 13px; color: #888;">Showing all matches</p>
+            </div>
+            <!-- Mock filters for UI -->
+            <div class="filter-group">
+                <h3>Price</h3>
+                <label class="filter-label"><input type="checkbox"> Under ₹299</label>
+                <label class="filter-label"><input type="checkbox"> ₹300 - ₹599</label>
+                <label class="filter-label"><input type="checkbox"> ₹600 - ₹999</label>
+            </div>
+        </aside>
+
+        <main class="shop-main">
+            <h2 style="margin-bottom: 20px; text-transform: capitalize;" id="shopTitle">All Products</h2>
+            <div class="product-grid" id="shopGrid">
+                <!-- Populated by JS -->
+            </div>
+        </main>
+    </div>
+
+    <footer><p>DressCraft © 2026</p></footer>
+
+    <script src="products.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            
+            // Get category from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category') || 'all';
+            
+            // Set title
+            document.getElementById('shopTitle').innerText = category === 'all' ? 'All Products' : category + ' Collection';
+
+            // Load products dynamically
+            const shopGrid = document.getElementById('shopGrid');
+            const products = getProductsByCategory(category);
+            
+            if(products.length === 0) {
+                shopGrid.innerHTML = '<p>No products found in this category.</p>';
+            } else {
+                shopGrid.innerHTML = products.map(p => `
+                    <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+                        <img src="${p.image}" alt="${p.title}">
+                        <div class="product-info">
+                            <h3 class="product-title">${p.title}</h3>
+                            <p class="product-price">₹${p.price}</p>
+                            <span class="product-delivery">Free Delivery</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+</html>

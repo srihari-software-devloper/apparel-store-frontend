@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | DressCraft</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="index.html" class="logo">
+                <span style="color: var(--primary);">👗 DressCraft</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="action-item action-wrapper">
+                    Cart <span class="cart-count" id="cartCountBadge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div style="max-width: 600px; margin: 50px auto; background: var(--bg-white); padding: 40px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        <h2 style="margin-bottom: 20px; text-align: center; color: var(--primary);">Track Your Order</h2>
+        
+        <div style="display: none;">
+            <!-- Hidden to prevent JS errors if anything still looks for it -->
+            <input type="text" id="trackInput">
+        </div>
+
+        <div id="trackingResult" style="display: none;">
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 20px;">
+                <h3 style="font-size: 18px; margin-bottom: 10px;">Order Details <span id="resOrderId" style="color: #888; font-size: 14px; font-weight: normal;"></span></h3>
+                <p style="color: #666; margin-bottom: 5px;">Date: <span id="resDate"></span></p>
+                <p style="color: #666; margin-bottom: 20px;">Total Amount: ₹<span id="resTotal"></span></p>
+                
+                <h4 style="margin-bottom: 15px;">Status</h4>
+                <div style="display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 30px;">
+                    <!-- Line -->
+                    <div style="position: absolute; top: 12px; left: 0; width: 100%; height: 4px; background: #eee; z-index: 1;"></div>
+                    <div id="progressLine" style="position: absolute; top: 12px; left: 0; width: 50%; height: 4px; background: #03a685; z-index: 2; transition: width 0.5s;"></div>
+                    
+                    <!-- Dots -->
+                    <div style="z-index: 3; display: flex; flex-direction: column; align-items: center; background: white; padding: 0 5px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: #03a685; border: 4px solid #ccf0e8; margin-bottom: 5px;"></div>
+                        <span style="font-size: 12px; font-weight: bold; color: #03a685;">Placed</span>
+                    </div>
+                    <div style="z-index: 3; display: flex; flex-direction: column; align-items: center; background: white; padding: 0 5px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: #03a685; border: 4px solid #ccf0e8; margin-bottom: 5px;"></div>
+                        <span style="font-size: 12px; font-weight: bold; color: #03a685;">Processing</span>
+                    </div>
+                    <div style="z-index: 3; display: flex; flex-direction: column; align-items: center; background: white; padding: 0 5px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: #eee; border: 4px solid white; margin-bottom: 5px;"></div>
+                        <span style="font-size: 12px; color: #888;">Delivered</span>
+                    </div>
+                </div>
+
+                <p id="deliveryEstimate" style="font-size: 14px; color: var(--primary); font-weight: 500; margin-bottom: 20px;">Your order will be delivered in 6-7 days.</p>
+
+                <div id="resItems" style="background: #f9f9f9; padding: 15px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <!-- Items rendered here -->
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button id="cancelOrderBtn" class="btn-primary" style="background-color: #dc3545; border-color: #dc3545; padding: 10px 20px;" onclick="cancelOrder()">Cancel Order</button>
+                    <button id="confirmDeliveryBtn" class="btn-primary" style="background-color: #03a685; border-color: #03a685; padding: 10px 20px;" onclick="confirmDelivery()">Confirm Delivery</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="notFoundMsg" style="display: none; text-align: center; color: red; padding: 20px;">
+            Order ID not found. Please check and try again.
+        </div>
+    </div>
+
+    <footer><p>DressCraft © 2026</p></footer>
+
+    <script src="script.js"></script>
+    <script>
+        let currentTrackId = '';
+
+        function trackOrder(idToTrack) {
+            currentTrackId = idToTrack || '';
+            if(!currentTrackId) return;
+            
+            const history = JSON.parse(localStorage.getItem('orderHistory')) || [];
+            const order = history.find(o => o.orderId === currentTrackId);
+            
+            const resDiv = document.getElementById('trackingResult');
+            const errDiv = document.getElementById('notFoundMsg');
+            
+            if(order) {
+                errDiv.style.display = 'none';
+                resDiv.style.display = 'block';
+                
+                document.getElementById('resOrderId').innerText = `(${order.orderId})`;
+                document.getElementById('resDate').innerText = order.date;
+                document.getElementById('resTotal').innerText = order.total;
+                
+                const itemsHtml = order.items.map(item => `
+                    <div style="margin-bottom: 10px; font-size: 14px;">
+                        <strong>${item.dressType}</strong> - ₹${item.price} <br>
+                        <span style="color: #666; font-size: 12px;">Size: ${item.size} | Color: ${item.color}</span>
+                    </div>
+                `).join('');
+                document.getElementById('resItems').innerHTML = itemsHtml;
+
+                const cancelBtn = document.getElementById('cancelOrderBtn');
+                const deliverBtn = document.getElementById('confirmDeliveryBtn');
+                const deliveryEstimate = document.getElementById('deliveryEstimate');
+                
+                if(order.status === "Cancelled") {
+                    document.getElementById('progressLine').style.background = "#dc3545";
+                    cancelBtn.style.display = 'none';
+                    deliverBtn.style.display = 'none';
+                    deliveryEstimate.style.display = 'none';
+                    document.getElementById('resDate').innerHTML = order.date + ' <span style="color: red; font-weight: bold;">(CANCELLED)</span>';
+                } else if(order.status === "Delivered") {
+                    document.getElementById('progressLine').style.background = "#03a685";
+                    document.getElementById('progressLine').style.width = "100%";
+                    cancelBtn.style.display = 'none';
+                    deliverBtn.style.display = 'none';
+                    deliveryEstimate.style.display = 'none';
+                    document.getElementById('resDate').innerHTML = order.date + ' <span style="color: #03a685; font-weight: bold;">(DELIVERED)</span>';
+                } else {
+                    document.getElementById('progressLine').style.background = "#03a685";
+                    cancelBtn.style.display = 'inline-block';
+                    deliverBtn.style.display = 'inline-block';
+                    deliveryEstimate.style.display = 'block';
+                }
+                
+            } else {
+                resDiv.style.display = 'none';
+                errDiv.style.display = 'block';
+            }
+        }
+
+        async function cancelOrder() {
+            if(!currentTrackId) return;
+            
+            if(confirm("Are you sure you want to cancel this order?")) {
+                let history = JSON.parse(localStorage.getItem('orderHistory')) || [];
+                const orderIndex = history.findIndex(o => o.orderId === currentTrackId);
+                
+                if(orderIndex !== -1) {
+                    // Update locally
+                    history[orderIndex].status = "Cancelled";
+                    localStorage.setItem('orderHistory', JSON.stringify(history));
+
+                    // Send cancellation to Google Apps Script
+                    try {
+                        await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: "CANCEL", orderId: currentTrackId }),
+                        });
+                    } catch (e) {
+                        console.error("Failed to notify server of cancellation", e);
+                    }
+
+                    alert("Order has been cancelled successfully.");
+                    trackOrder(currentTrackId);
+                }
+            }
+        }
+
+        async function confirmDelivery() {
+            if(!currentTrackId) return;
+
+            const phone = prompt("To confirm delivery, please enter the Phone Number you used to place this order:");
+            if(phone === null || phone.trim() === '') return;
+
+            const loaderDiv = document.createElement('div');
+            loaderDiv.innerText = "Verifying and updating...";
+            loaderDiv.style.color = "#03a685";
+            loaderDiv.style.marginTop = "10px";
+            loaderDiv.style.textAlign = "center";
+            document.getElementById('trackingResult').appendChild(loaderDiv);
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "DELIVER", orderId: currentTrackId, phone: phone.trim() }),
+                });
+                
+                const data = await response.json();
+                loaderDiv.remove();
+
+                if(data.result === "success") {
+                    let history = JSON.parse(localStorage.getItem('orderHistory')) || [];
+                    const orderIndex = history.findIndex(o => o.orderId === currentTrackId);
+                    if(orderIndex !== -1) {
+                        history[orderIndex].status = "Delivered";
+                        localStorage.setItem('orderHistory', JSON.stringify(history));
+                    }
+                    alert("Delivery confirmed! Thank you for shopping with DressCraft.");
+                    trackOrder(currentTrackId);
+                } else {
+                    alert("Verification failed: " + (data.message || "Phone number did not match."));
+                }
+
+            } catch (e) {
+                loaderDiv.remove();
+                alert("Failed to reach server. Please try again later.");
+                console.error("Delivery confirm error", e);
+            }
+        }
+
+        // Check URL for ID
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if(id) {
+                trackOrder(id);
+            }
+        });
+    </script>
+</body>
+</html>
